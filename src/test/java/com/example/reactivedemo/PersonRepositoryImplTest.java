@@ -3,7 +3,10 @@ package com.example.reactivedemo;
 import com.example.reactivedemo.domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,11 +20,9 @@ class PersonRepositoryImplTest {
     }
 
     @Test
-    void getById() {
+    void getByIdBlocking() {
         Mono<Person> personMono = personRepository.getById(1);
-
         Person person = personMono.block();
-
         System.out.println(person.toString());
     }
 
@@ -42,10 +43,42 @@ class PersonRepositoryImplTest {
         }).subscribe(firstName -> {
             System.out.println(firstName);
         });
-
     }
 
     @Test
-    void findAll() {
+    void fluxTestBlockFirst() {
+        Flux<Person> personFlux = personRepository.findAll();
+        Person person = personFlux.blockFirst();
+        System.out.println(person.toString());
+    }
+
+    @Test
+    void fluxTestSubscribe() {
+        Flux<Person> personFlux = personRepository.findAll();
+        personFlux.subscribe(person -> {
+            System.out.println(person.toString());
+        });
+    }
+
+    @Test
+    void fluxTestToListMono() {
+        Flux<Person> personFlux = personRepository.findAll();
+        Mono<List<Person>> personListMono = personFlux.collectList();
+        personListMono.subscribe(list -> {
+            list.forEach(person -> {
+                System.out.println(person.toString());
+            });
+        });
+    }
+
+    @Test
+    void fluxTestMapFunction() {
+        Flux<Person> personFlux = personRepository.findAll();
+        personFlux.map(person -> {
+            System.out.println("Should NOT see this without a subscriber");
+            return person.getFirstName();
+        }).subscribe(name -> {
+            System.out.println(name);
+        });
     }
 }
