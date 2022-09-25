@@ -36,7 +36,7 @@ class PersonRepositoryImplTest {
 
     @Test
     void getByIdMapFunction() {
-        Mono<Person> personMono = personRepository.getById(1);
+        Mono<Person> personMono = personRepository.getById(3);
         personMono.map(person -> {
             System.out.println("Should NOT see this without a subscriber");
             return person.getFirstName();

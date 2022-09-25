@@ -14,16 +14,9 @@ public class PersonRepositoryImpl implements PersonRepository {
     Person sam = new Person(3, "Sam", "Axe");
     Person jesse = new Person(4, "Jesse", "Porter");
 
-    Map<Integer, Person> personById = new HashMap<>() {{
-        put(michael.getId(), michael);
-        put(fiona.getId(), fiona);
-        put(sam.getId(), sam);
-        put(jesse.getId(), jesse);
-    }};
-
     @Override
     public Mono<Person> getById(Integer id) {
-        return Mono.just(personById.get(id));
+        return findAll().filter(person -> person.getId() == id).single();
     }
 
     @Override
