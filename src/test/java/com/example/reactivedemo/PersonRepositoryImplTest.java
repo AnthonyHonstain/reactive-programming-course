@@ -81,4 +81,41 @@ class PersonRepositoryImplTest {
             System.out.println(name);
         });
     }
+
+    @Test
+    void testFindPersonById() {
+        Flux<Person> personFlux = personRepository.findAll();
+        final Integer id = 3;
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).next();
+        // NOTE - next operation handles things quietly.
+        personMono.subscribe(person -> {
+            System.out.println(person.toString());
+        });
+    }
+
+    @Test
+    void testFindPersonByIdNotFound() {
+        Flux<Person> personFlux = personRepository.findAll();
+        final Integer id = 8;
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).next();
+        personMono.subscribe(person -> {
+            System.out.println(person.toString());
+        });
+    }
+
+    @Test
+    void testFindPersonByIdNotFoundWithException() {
+        Flux<Person> personFlux = personRepository.findAll();
+        final Integer id = 8;
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).single();
+        personMono.doOnError(throwable -> {
+            // Example of taking some action on the error, BUT the exception will still happen
+            System.out.println("Error happened");
+        }).onErrorReturn(
+                // Forcing a default to happen, using the builder to make a default.
+                Person.builder().id(id).build()
+        ).subscribe(person -> {
+            System.out.println(person.toString());
+        });
+    }
 }
