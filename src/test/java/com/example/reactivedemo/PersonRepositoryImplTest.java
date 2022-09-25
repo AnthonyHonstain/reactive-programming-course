@@ -46,6 +46,16 @@ class PersonRepositoryImplTest {
     }
 
     @Test
+    void getByIdMapFunctionWithSubscribe() {
+        Mono<Person> personMono = personRepository.getById(2);
+        personMono.map(person -> {
+            return person.getFirstName();
+        }).subscribe(firstName -> {
+            assertEquals("Fiona", firstName);
+        });
+    }
+
+    @Test
     void fluxTestBlockFirst() {
         Flux<Person> personFlux = personRepository.findAll();
         Person person = personFlux.blockFirst();
